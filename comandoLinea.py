@@ -1,6 +1,9 @@
 import sys
-from main import *
 
+class Menu:
+
+    def __init__(self):
+        
 
 # Ingresar numero de dias de la proyección
 flag = True
