@@ -70,6 +70,7 @@ class Centrifuga:
         self.estanque = estanque
         self.caudalReferencia = caudal
         self.caudalHorario = np.full((24 * dias, 1), caudal)
+        self.taller_deshidratacion.append(self)
         
     def setterPrioridad(self, prioridad):
         try:
