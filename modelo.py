@@ -8,10 +8,60 @@ TODO:
 en caso de domingos y fechas especificas.
 '''
 
+class TallerDeshidratacion(list):
+
+    def __init__(self):
+        return 
+
+    # def addCentrifuga(self, centrifuga):
+    #     if isinstance(centrifuga, Centrifuga):
+    #         TallerDeshidratacion.centrifugas.append(centrifuga)
+    #     else:
+    #         print("Valor no valido.")
+    
+    # def caudalEstanque(self, estanque, hora):
+    #     caudal = 0
+
+    #     for cent in TallerDeshidratacion.centrifugas:
+    #         if cent.estanque == estanque:
+    #             caudal += cent.caudalHorario[hora]
+            
+    #     return float(caudal)
+
+    # def caudalSilo(self, silo, hora):
+    #     caudal = 0
+
+    #     for cent in TallerDeshidratacion.centrifugas:
+    #         if cent.silo == silo:
+    #             caudal += cent.caudalHorario[hora]
+        
+    #     return float(caudal)
+    
+    # def detenerCentSilo(self, silo, hora):
+    #     for cent in TallerDeshidratacion.centrifugas:
+    #         if cent.silo == silo:
+    #             cent.detenerCentrifuga(hora)
+    
+    # def detenerCentPrioridad(self, estanque, hora):
+    #     '''
+    #         Detiene la centrìfuga con mayor valor de prioridad.
+    #     '''
+
+    #     zipCent = zip(range(len(TallerDeshidratacion.centrifugas)),
+    #     [x.prioridad for x in TallerDeshidratacion.centrifugas])
+
+    #     listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)
+    #     for tupleIndex in listCent:
+    #         a, _ = tupleIndex
+    #         if TallerDeshidratacion.centrifugas[a].estanque == estanque:
+    #             TallerDeshidratacion.centrifugas[a].detenerCentrifuga(hora)
+
 class Centrifuga:
     prioridades = [1, 2, 3, 4, 5, 6]
     silos = ['siloA', 'siloB', 'siloC', 'siloD']
     estanques = ['eld1', 'eld2', 'eld3']
+
+    taller_deshidratacion = TallerDeshidratacion()
 
     def __init__(self, id, estanque, silo, caudal, prioridad, dias):
         self.id = id
@@ -53,55 +103,6 @@ class Centrifuga:
     def toString(self):
         return print("Centrìfuga " + str(self.id) + " alimentada por el estanque " + 
         str(self.estanque) + " y alineada al silo " + str(self.silo))
-
-class TallerDeshidratacion:
-    centrifugas = []
-
-    def __init__(self):
-        return 
-
-    def addCentrifuga(self, centrifuga):
-        if isinstance(centrifuga, Centrifuga):
-            TallerDeshidratacion.centrifugas.append(centrifuga)
-        else:
-            print("Valor no valido.")
-    
-    def caudalEstanque(self, estanque, hora):
-        caudal = 0
-
-        for cent in TallerDeshidratacion.centrifugas:
-            if cent.estanque == estanque:
-                caudal += cent.caudalHorario[hora]
-            
-        return float(caudal)
-
-    def caudalSilo(self, silo, hora):
-        caudal = 0
-
-        for cent in TallerDeshidratacion.centrifugas:
-            if cent.silo == silo:
-                caudal += cent.caudalHorario[hora]
-        
-        return float(caudal)
-    
-    def detenerCentSilo(self, silo, hora):
-        for cent in TallerDeshidratacion.centrifugas:
-            if cent.silo == silo:
-                cent.detenerCentrifuga(hora)
-    
-    def detenerCentPrioridad(self, estanque, hora):
-        '''
-            Detiene la centrìfuga con mayor valor de prioridad.
-        '''
-
-        zipCent = zip(range(len(TallerDeshidratacion.centrifugas)),
-        [x.prioridad for x in TallerDeshidratacion.centrifugas])
-
-        listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)
-        for tupleIndex in listCent:
-            a, _ = tupleIndex
-            if TallerDeshidratacion.centrifugas[a].estanque == estanque:
-                TallerDeshidratacion.centrifugas[a].detenerCentrifuga(hora)
             
 class EstanqueLodoDigerido:
 
