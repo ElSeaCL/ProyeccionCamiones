@@ -45,7 +45,7 @@ for hora in range(24* dias):
     if taller_silos.esHoraDeCarguio(hora):
         while max(modList) >= minSilo and taller_silos.getCamionesDisponibles()[hora][0] > 0:
             ind = modList.index(max(modList))
-            silo = taller_silos.silos[ind]
+            silo = taller_silos[ind]
             taller_silos.asignarCamion(silo, hora)
             modList[ind] -= alturaSiloCamion 
 
@@ -75,7 +75,7 @@ for hora in range(24* dias):
         eld1.calcularNivel(caudal_estanque, hora + 1)
 
         # Calcular nivel de silos para proxima hora
-        for silo in taller_silos.silos:
+        for silo in taller_silos:
             id = silo.id
             silo.calcularNivel(taller_deshidratacion.caudalSilo(id, hora), hora + 1)
 
