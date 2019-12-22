@@ -107,7 +107,8 @@ class Centrifuga:
             
 class EstanqueLodoDigerido:
 
-    def __init__(self, volumen, caudalDig, nivelActual = 0, dias = 1):
+    def __init__(self, id, volumen, caudalDig, nivelActual = 0, dias = 1):
+        self.id = id
         self.volumen = volumen
         self.dia = dia
         self.nivelHorario = np.zeros((24 * dias, 1))
@@ -115,7 +116,9 @@ class EstanqueLodoDigerido:
         self.caudalHorario = np.full((24 * dias, 1), caudalDig/24)
         
     def calcularNivel(self, caudalCentrifugas, hora):
-        self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + self.caudalHorario[hora - 1] - caudalCentrifugas) * 100 / (self.volumen)
+        self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + \
+            self.caudalHorario[hora - 1] - caudalCentrifugas - self.traspaso[hora - 1])\
+                 * 100 / (self.volumen)
 
         return self.nivelHorario[hora]
 
@@ -130,6 +133,10 @@ class EstanqueLodoDigerido:
             return print("Día excede el estipulado para la proyección")
         else:
             self.caudalHorario[24*(dia-1):(24*dia - 1)] = caudalDig/24
+
+    def setTraspaso(self, estanque, caudal):
+        caudal = (estanque, caudal)
+        self.traspaso = [caudal for i in range(self.dia*24)]
 
 class TallerSilos(list):
     
