@@ -23,12 +23,8 @@ siloB = Silo('siloB', 3.9, dias, factor, pesoCamion, alturaSiloCamion)
 siloC = Silo('siloC', 5.7, dias, factor, pesoCamion, alturaSiloCamion)
 siloD = Silo('siloD', 9.7, dias, factor, pesoCamion, alturaSiloCamion)
 
-taller_silos = TallerSilos(horas, numCamiones, dias)
-
-taller_silos.addSilo(siloA)
-taller_silos.addSilo(siloB)
-taller_silos.addSilo(siloC)
-taller_silos.addSilo(siloD)
+taller_silos = Silo.taller_silos
+taller_silos.setCamionesDisponibles(horas, numCamiones, dias)
 
 centA = Centrifuga('A', 'eld1', 'siloA', 45, 5, dias)
 centB = Centrifuga('B', 'eld1', 'siloD', 45, 4, dias)
@@ -37,14 +33,7 @@ centD = Centrifuga('D', 'eld1', 'siloC', 30, 6, dias)
 centE = Centrifuga('E', 'eld1', 'siloC', 55, 2, dias)
 centF = Centrifuga('F', 'eld1', 'siloD', 45, 1, dias)
 
-taller_deshidratacion = TallerDeshidratacion()
-
-taller_deshidratacion.addCentrifuga(centA)
-taller_deshidratacion.addCentrifuga(centB)
-taller_deshidratacion.addCentrifuga(centC)
-taller_deshidratacion.addCentrifuga(centD)
-taller_deshidratacion.addCentrifuga(centE)
-taller_deshidratacion.addCentrifuga(centF)
+taller_deshidratacion = Centrifuga.taller_deshidratacion
 
 # Loop ajuste de centrífugas con asignación de camiones
 

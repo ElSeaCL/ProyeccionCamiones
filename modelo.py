@@ -19,42 +19,42 @@ class TallerDeshidratacion(list):
     #     else:
     #         print("Valor no valido.")
     
-    # def caudalEstanque(self, estanque, hora):
-    #     caudal = 0
+    def caudalEstanque(self, estanque, hora):
+        caudal = 0
 
-    #     for cent in TallerDeshidratacion.centrifugas:
-    #         if cent.estanque == estanque:
-    #             caudal += cent.caudalHorario[hora]
+        for cent in self:
+            if cent.estanque == estanque:
+                caudal += cent.caudalHorario[hora]
             
-    #     return float(caudal)
+        return float(caudal)
 
-    # def caudalSilo(self, silo, hora):
-    #     caudal = 0
+    def caudalSilo(self, silo, hora):
+        caudal = 0
 
-    #     for cent in TallerDeshidratacion.centrifugas:
-    #         if cent.silo == silo:
-    #             caudal += cent.caudalHorario[hora]
+        for cent in self:
+            if cent.silo == silo:
+                caudal += cent.caudalHorario[hora]
         
-    #     return float(caudal)
+        return float(caudal)
     
-    # def detenerCentSilo(self, silo, hora):
-    #     for cent in TallerDeshidratacion.centrifugas:
-    #         if cent.silo == silo:
-    #             cent.detenerCentrifuga(hora)
+    def detenerCentSilo(self, silo, hora):
+        for cent in self:
+            if cent.silo == silo:
+                cent.detenerCentrifuga(hora)
     
-    # def detenerCentPrioridad(self, estanque, hora):
-    #     '''
-    #         Detiene la centrìfuga con mayor valor de prioridad.
-    #     '''
+    def detenerCentPrioridad(self, estanque, hora):
+        '''
+            Detiene la centrìfuga con mayor valor de prioridad.
+        '''
 
-    #     zipCent = zip(range(len(TallerDeshidratacion.centrifugas)),
-    #     [x.prioridad for x in TallerDeshidratacion.centrifugas])
+        zipCent = zip(range(len(self)),
+        [x.prioridad for x in self])
 
-    #     listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)
-    #     for tupleIndex in listCent:
-    #         a, _ = tupleIndex
-    #         if TallerDeshidratacion.centrifugas[a].estanque == estanque:
-    #             TallerDeshidratacion.centrifugas[a].detenerCentrifuga(hora)
+        listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)
+        for tupleIndex in listCent:
+            a, _ = tupleIndex
+            if self[a].estanque == estanque:
+                self[a].detenerCentrifuga(hora)
 
 class Centrifuga:
     prioridades = [1, 2, 3, 4, 5, 6]
@@ -124,8 +124,61 @@ class EstanqueLodoDigerido:
     def getCaudalHorario(self):
         return self.caudalHorario
 
+class TallerSilos(list):
+    
+    def __init__(self):
+        return
+
+    def setCamionesDisponibles(self, horasCarguio, numCamiones, dias):
+        self.horasCarguio = horasCarguio
+        camiones = np.zeros((24, 1))
+        for i in range(24):
+            if i in horasCarguio:
+                camiones[i] = numCamiones
+        self.camionesDisponibles = camiones
+        for i in range(dias):
+            self.camionesDisponibles = \
+            np.concatenate((self.camionesDisponibles, self.camionesDisponibles), axis = 0)
+
+    def setCamionesHora(self, numCamiones, hora, dia):
+        '''
+        Modifica la cantidad de camiones disponibles para un dìa y hora especifico
+        '''
+        ind = (dia - 1)* 24 + hora
+        self.camionesDisponibles[ind] = numCamiones
+
+    def getNivelSilos(self):
+        listaSilos = [x.nivel for x in self]
+        return np.concatenate(listaSilos, axis=1)
+
+    def getCamionesDisponibles(self):
+        return self.camionesDisponibles
+
+    def getCamionesProyectados(self):
+        return np.concatenate([x.getCamionesAsignados() for x in self], axis=1)
+
+    def getIndSiloMayor(self, hora):
+        ind = list(self.getNivelSilos()[hora]).index(max(self.getNivelSilos()[hora]))
+        return ind
+
+    def getSiloMayor(self, hora):
+        ind = self.getIndSiloMayor(hora)
+        return self[ind]
+
+    def asignarCamion(self, silo, hora):
+        silo.asignarCamion(hora)
+        self.camionesDisponibles[hora] -= 1
+
+    def esHoraDeCarguio(self, hora):
+        if self.camionesDisponibles[hora] > 0:
+            return True
+        else:
+            return False
+
 class Silo:
     id = ['siloA', 'siloB', 'siloC', 'siloD']
+
+    taller_silos = TallerSilos()
 
     def __init__(self, id, nivelActual, dias, factor, pesoCamion, alturaCamion):
         self.id = id
@@ -135,7 +188,8 @@ class Silo:
         self.factor = factor 
         self.pesoCamion = pesoCamion
         self.alturaCamion = alturaCamion
-        self.camionesAsignados = np.zeros((24 * dias, 1))  
+        self.camionesAsignados = np.zeros((24 * dias, 1))
+        self.taller_silos.append(self)  
 
     def getNivel(self):
         return self.nivel  
@@ -151,53 +205,6 @@ class Silo:
     def getCamionesAsignados(self):
         return self.camionesAsignados
 
-class TallerSilos:
 
-    silos = []
-    
-    def __init__(self, horasCarguio, numCamiones, dias):
-        self.horasCarguio = horasCarguio
-        camiones = np.zeros((24, 1))
-        for i in range(24):
-            if i in horasCarguio:
-                camiones[i] = numCamiones
-        self.camionesDisponibles = camiones
-        for i in range(dias):
-            self.camionesDisponibles = \
-            np.concatenate((self.camionesDisponibles, self.camionesDisponibles), axis = 0)
-
-    def addSilo(self, silo):
-        if isinstance(silo, Silo):
-            TallerSilos.silos.append(silo)
-        else:
-            print("Valor no válido.")
-
-    def getNivelSilos(self):
-        listaSilos = [x.nivel for x in TallerSilos.silos]
-        return np.concatenate(listaSilos, axis=1)
-
-    def getCamionesDisponibles(self):
-        return self.camionesDisponibles
-
-    def getCamionesProyectados(self):
-        return np.concatenate([x.getCamionesAsignados() for x in TallerSilos.silos], axis=1)
-
-    def getIndSiloMayor(self, hora):
-        ind = list(self.getNivelSilos()[hora]).index(max(self.getNivelSilos()[hora]))
-        return ind
-
-    def getSiloMayor(self, hora):
-        ind = self.getIndSiloMayor(hora)
-        return TallerSilos.silos[ind]
-
-    def asignarCamion(self, silo, hora):
-        silo.asignarCamion(hora)
-        self.camionesDisponibles[hora] -= 1
-
-    def esHoraDeCarguio(self, hora):
-        if self.camionesDisponibles[hora] > 0:
-            return True
-        else:
-            return False
     
     
