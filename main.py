@@ -80,9 +80,7 @@ for hora in range(24* dias):
                 # taller_deshidratacion.detenerCentPrioridad('eld1', hora)
                 #
                 caudal_estanque = taller_deshidratacion.caudalEstanque('eld1', hora)
-                print("el caudal de centrifugas es de" + str(caudal_estanque))
                 niveleld1 = eld1.calcularNivel(caudal_estanque, hora + 1)
-                print("El nivel proyectado es de" + str(niveleld1))
 
         eld1.calcularNivel(caudal_estanque, hora + 1)
 
@@ -91,4 +89,3 @@ for hora in range(24* dias):
             id = silo.id
             silo.calcularNivel(taller_deshidratacion.caudalSilo(id, hora), hora + 1)
     
-    print("se finaliza un ciclo\n")

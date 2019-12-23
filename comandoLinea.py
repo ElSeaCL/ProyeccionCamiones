@@ -9,7 +9,7 @@ class Menu:
     MAXSILO = 10
     VOLELD = {'eld1': 4240, 'eld2': 4240, 'eld3': 2300}
     ALTURASILOCAMION = 2.3
-    PESOCAMION = 
+    PESOCAMION = 2_887
 
     def __init__(self):
         self.opciones = {
