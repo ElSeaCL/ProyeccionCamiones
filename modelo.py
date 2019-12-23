@@ -1,11 +1,8 @@
 import numpy as np
 '''
 TODO: 
-- funcion que defina la diferencia de caudal de entrada y salida de un ELD.
-- Ajuste de centrifugas en operación para para que la diferencia de caudales en el ELD
-    sea positiva (permita acumular lodo)
-- Permitir fijar una cantidad de camiones a asignar distinto para una hora especifica. A utilizar
-en caso de domingos y fechas especificas.
+- Especificar el mecanismo de traspaso de lodo
+- Replantear el método detenerCentPrioridad() que actualmente no funciona
 '''
 
 class TallerDeshidratacion(list):
@@ -13,12 +10,6 @@ class TallerDeshidratacion(list):
     def __init__(self):
         return 
 
-    # def addCentrifuga(self, centrifuga):
-    #     if isinstance(centrifuga, Centrifuga):
-    #         TallerDeshidratacion.centrifugas.append(centrifuga)
-    #     else:
-    #         print("Valor no valido.")
-    
     def caudalEstanque(self, estanque, hora):
         caudal = 0
 
@@ -47,14 +38,20 @@ class TallerDeshidratacion(list):
             Detiene la centrìfuga con mayor valor de prioridad.
         '''
 
-        zipCent = zip(range(len(self)),
-        [x.prioridad for x in self])
+        # zipCent = zip(range(len(self)),
+        # [x.prioridad for x in self])
+        # listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)
+        # print(listCent)
 
-        listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)
-        for tupleIndex in listCent:
-            a, _ = tupleIndex
-            if self[a].estanque == estanque:
-                self[a].detenerCentrifuga(hora)
+        # a , _ = list
+        # for tupleIndex in listCent:
+        #     a, _ = tupleIndex
+        #     print(self[a])
+        #     if self[a].estanque == estanque:
+        #         self[a].detenerCentrifuga(hora)
+
+    def getCaudalporCentrifuga(self):
+        return np.concatenate([x.caudalHorario for x in self], axis=1)
 
 class Centrifuga:
     prioridades = [1, 2, 3, 4, 5, 6]
@@ -110,15 +107,14 @@ class EstanqueLodoDigerido:
     def __init__(self, id, volumen, caudalDig, nivelActual = 0, dias = 1):
         self.id = id
         self.volumen = volumen
-        self.dia = dia
+        self.dias = dias
         self.nivelHorario = np.zeros((24 * dias, 1))
         self.nivelHorario[0] = nivelActual
         self.caudalHorario = np.full((24 * dias, 1), caudalDig/24)
+        self.traspaso = np.zeros((24 * dias, 1))
         
     def calcularNivel(self, caudalCentrifugas, hora):
-        self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + \
-            self.caudalHorario[hora - 1] - caudalCentrifugas - self.traspaso[hora - 1])\
-                 * 100 / (self.volumen)
+        self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + self.caudalHorario[hora - 1] - caudalCentrifugas - self.traspaso[hora - 1])* 100 / (self.volumen)
 
         return self.nivelHorario[hora]
 
@@ -129,7 +125,7 @@ class EstanqueLodoDigerido:
         return self.caudalHorario
 
     def setCaudalHorarioDia(self, caudalDig, dia):
-        if dia > self.dia:
+        if dia > self.dias:
             return print("Día excede el estipulado para la proyección")
         else:
             self.caudalHorario[24*(dia-1):(24*dia - 1)] = caudalDig/24
@@ -209,7 +205,7 @@ class Silo:
         return self.nivel  
 
     def calcularNivel(self, caudalCentrifugas, hora):
-        self.nivel[hora] = self.nivel[hora - 1] + caudalCentrifugas * self.factor / self.pesoCamion * self.alturaCamion - self.getCamionesAsignados()[hora - 1]
+        self.nivel[hora] = self.nivel[hora - 1] + caudalCentrifugas * self.factor / self.pesoCamion * self.alturaCamion - self.getCamionesAsignados()[hora - 1]*self.alturaCamion
         
         return self.nivel[hora]
 

@@ -5,10 +5,10 @@ from modelo import Centrifuga, Silo, EstanqueLodoDigerido, TallerSilos, TallerDe
 silos = ['siloA', 'siloB', 'siloC', 'siloD']
 
 dias = 7
-factor = 109
+factor = 114.19
 alturaSiloCamion = 2.3
-pesoCamion = 42000
-horas = [1, 6, 9]
+pesoCamion = 24_213
+horas = [1, 5, 10]
 minELD = 35
 minSilo = 4.6
 maxSilo = 10
@@ -16,15 +16,19 @@ numCamiones = 7
 
 # Creación de objetos
 
-eld1 = EstanqueLodoDigerido(4240, 4020, 50, dias)
+eld1 = EstanqueLodoDigerido('eld1', 4240, 2887, 37.8, dias)
 
-siloA = Silo('siloA', 6.9, dias, factor, pesoCamion, alturaSiloCamion)
-siloB = Silo('siloB', 3.9, dias, factor, pesoCamion, alturaSiloCamion)
-siloC = Silo('siloC', 5.7, dias, factor, pesoCamion, alturaSiloCamion)
-siloD = Silo('siloD', 9.7, dias, factor, pesoCamion, alturaSiloCamion)
+siloA = Silo('siloA', 6.5, dias, factor, pesoCamion, alturaSiloCamion)
+siloB = Silo('siloB', 5.2, dias, factor, pesoCamion, alturaSiloCamion)
+siloC = Silo('siloC', 9.2, dias, factor, pesoCamion, alturaSiloCamion)
+siloD = Silo('siloD', 9.3, dias, factor, pesoCamion, alturaSiloCamion)
 
 taller_silos = Silo.taller_silos
 taller_silos.setCamionesDisponibles(horas, numCamiones, dias)
+
+taller_silos.setCamionesHora(0, 10, 2)
+taller_silos.setCamionesHora(0, 1, 3)
+taller_silos.setCamionesHora(0, 5, 3)
 
 centA = Centrifuga('A', 'eld1', 'siloA', 45, 5, dias)
 centB = Centrifuga('B', 'eld1', 'siloD', 45, 4, dias)
@@ -39,6 +43,7 @@ taller_deshidratacion = Centrifuga.taller_deshidratacion
 
 for hora in range(24* dias):
 
+    print(taller_deshidratacion.getCaudalporCentrifuga()[hora: hora + 10])
     modList = list(taller_silos.getNivelSilos()[hora])
 
     # Asignación de camiones
@@ -56,7 +61,6 @@ for hora in range(24* dias):
             silo = silos[i]
             taller_deshidratacion.detenerCentSilo(silo, hora)
 
-
     if not hora == (24 * dias - 1):
         
         # Calculo nivel de ELD tras detencion de centrifugas por silo
@@ -65,8 +69,16 @@ for hora in range(24* dias):
 
         # Detención de centrífugas si el nivel del silo está bajo el mínimo
         if eld1.getNivel(hora + 1)[0] < minELD:
+            #
+            zipCent = zip(range(len(taller_deshidratacion)), [x.prioridad for x in taller_deshidratacion])
+            listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)
+            #
             while eld1.getCaudalHorario()[hora][0] - taller_deshidratacion.caudalEstanque('eld1', hora) < 0:
-                taller_deshidratacion.detenerCentPrioridad('eld1', hora)
+                #
+                a, _ = listCent.pop(0)
+                taller_deshidratacion[a].detenerCentrifuga(hora)
+                # taller_deshidratacion.detenerCentPrioridad('eld1', hora)
+                #
                 caudal_estanque = taller_deshidratacion.caudalEstanque('eld1', hora)
                 print("el caudal de centrifugas es de" + str(caudal_estanque))
                 niveleld1 = eld1.calcularNivel(caudal_estanque, hora + 1)
@@ -78,4 +90,5 @@ for hora in range(24* dias):
         for silo in taller_silos:
             id = silo.id
             silo.calcularNivel(taller_deshidratacion.caudalSilo(id, hora), hora + 1)
-
+    
+    print("se finaliza un ciclo\n")
