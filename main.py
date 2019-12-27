@@ -1,31 +1,44 @@
-from modelo import Centrifuga, Silo, EstanqueLodoDigerido, TallerSilos, TallerDeshidratacion
+from modelo import Centrifuga, Silo, EstanqueLodoDigerido, TallerSilos, TallerDeshidratacion, AreaELD
 
-# Ingreso de variables
+#=========================================================================
+# PARAMETROS INICIALES
+#=========================================================================
 
 silos = ['siloA', 'siloB', 'siloC', 'siloD']
-
 dias = 10
 factor = 106.7
 alturaSiloCamion = 2.3
 pesoCamion = 24_277
 horas = [1, 5, 10]
-minELD = 35
+minELD1 = 35
+minELD3 = 30
 minSilo = 4.6
 maxSilo = 10
 numCamiones = 7
 
-# Creación de objetos
+#=========================================================================
+# CREACIÓN DE OBJETOS
+#=========================================================================
 
-eld1 = EstanqueLodoDigerido('eld1', 4240, 3500, 46.0, dias)
+## Estanques de lodo digerido
+eld1 = EstanqueLodoDigerido('eld1', 4240, 2140, 46.0, dias)
+eld3 = EstanqueLodoDigerido('eld3', 4240, 1360, 25.0, dias)
 
+## Traspaso de estanque a otro
+estanques = EstanqueLodoDigerido.estanques
+estanques.setTraspaso('eld3', 'eld1', 1360/24)
+
+## Silos de lodo deshidratado
 siloA = Silo('siloA', 4.9, dias, factor, pesoCamion, alturaSiloCamion)
 siloB = Silo('siloB', 5.6, dias, factor, pesoCamion, alturaSiloCamion)
 siloC = Silo('siloC', 5.2, dias, factor, pesoCamion, alturaSiloCamion)
 siloD = Silo('siloD', 7.6, dias, factor, pesoCamion, alturaSiloCamion)
 
+## Definicion de camiones disponibles
 taller_silos = Silo.taller_silos
 taller_silos.setCamionesDisponibles(horas, numCamiones, dias)
 
+## Excepciones de camiones
 taller_silos.setCamionesHora(0, 10, 2)
 taller_silos.setCamionesHora(0, 1, 3)
 taller_silos.setCamionesHora(6, 5, 3)
@@ -33,6 +46,7 @@ taller_silos.setCamionesHora(0, 10, 5)
 taller_silos.setCamionesHora(0, 1, 6)
 taller_silos.setCamionesHora(0, 5, 6)
 
+## Centrifugas de deshidratación
 centA = Centrifuga('A', 'eld1', 'siloA', 30, 5, dias)
 centB = Centrifuga('B', 'eld1', 'siloD', 45, 4, dias)
 centC = Centrifuga('C', 'eld1', 'siloA', 30, 3, dias)
@@ -42,7 +56,9 @@ centF = Centrifuga('F', 'eld1', 'siloD', 45, 1, dias)
 
 taller_deshidratacion = Centrifuga.taller_deshidratacion
 
-# Loop ajuste de centrífugas con asignación de camiones
+#=========================================================================
+# LOOP PRINCIPAL
+#=========================================================================
 
 for hora in range(24* dias):
 
@@ -70,7 +86,7 @@ for hora in range(24* dias):
         eld1.calcularNivel(caudal_estanque, hora + 1)
 
         # Detención de centrífugas si el nivel del silo está bajo el mínimo
-        if eld1.getNivel(hora + 1)[0] < minELD:
+        if eld1.getNivel(hora + 1)[0] < minELD1:
             #
             zipCent = zip(range(len(taller_deshidratacion)), [x.prioridad for x in taller_deshidratacion])
             listCent = sorted(zipCent, key=lambda x: x[1], reverse=True)

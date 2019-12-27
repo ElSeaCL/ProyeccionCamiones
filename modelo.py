@@ -111,14 +111,13 @@ class AreaELD(list):
         for estanque in self:
             if estanque.getID() == idEstanque:
                 return estanque
-            else:
-                return None
+        return None
     
     def setTraspaso(self, estanqueOrigen, estanqueDestino, caudal):
         '''
-        No me convence la forma en que se implementa esto. Por un lado no toma en cuenta que 
+        No me convence la forma en que se implementa esto. Pienso en implementar esto en un solo tuple de 3 datos, estanqueOrigen
+        estanque Destino y caudal. Este tuple será un atributo de la lista que podrá ser usado para el cálculo del nivel
         '''
-
 
         estanqueOrigen = self.getEstanque(estanqueOrigen)
         estanqueDestino = self.getEstanque(estanqueDestino)
@@ -129,8 +128,6 @@ class AreaELD(list):
         else:
             print("Estanque no registrado")
             return None
-
-    
 
 class EstanqueLodoDigerido:
 
@@ -143,8 +140,8 @@ class EstanqueLodoDigerido:
         self.nivelHorario = np.zeros((24 * dias, 1))
         self.nivelHorario[0] = nivelActual
         self.caudalHorario = np.full((24 * dias, 1), caudalDig/24)
-        self._traspasoSalida = np.zeros((24 * dias, 1))
-        self._traspasoEntrada = np.zeros((24 * dias, 1))
+        self.__traspasoSalida = np.zeros((24 * dias, 1))
+        self.__traspasoEntrada = np.zeros((24 * dias, 1))
         self.estanques.append(self)
 
     def getID(self):
@@ -152,8 +149,8 @@ class EstanqueLodoDigerido:
 
     def calcularNivel(self, caudalCentrifugas, hora):
         self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + \
-             self.caudalHorario[hora - 1] + self._traspasoEntrada[hora - 1] - \
-                 caudalCentrifugas - self._traspasoSalida[hora - 1])* 100 / (self.volumen)
+             self.caudalHorario[hora - 1] + self.__traspasoEntrada[hora - 1] - \
+                 caudalCentrifugas - self.__traspasoSalida[hora - 1])* 100 / (self.volumen)
 
         return self.nivelHorario[hora]
 
