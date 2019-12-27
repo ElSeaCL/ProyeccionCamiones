@@ -4,10 +4,10 @@ from modelo import Centrifuga, Silo, EstanqueLodoDigerido, TallerSilos, TallerDe
 
 silos = ['siloA', 'siloB', 'siloC', 'siloD']
 
-dias = 7
-factor = 114.19
+dias = 10
+factor = 106.7
 alturaSiloCamion = 2.3
-pesoCamion = 24_213
+pesoCamion = 24_277
 horas = [1, 5, 10]
 minELD = 35
 minSilo = 4.6
@@ -16,21 +16,24 @@ numCamiones = 7
 
 # Creación de objetos
 
-eld1 = EstanqueLodoDigerido('eld1', 4240, 2887, 37.8, dias)
+eld1 = EstanqueLodoDigerido('eld1', 4240, 3500, 46.0, dias)
 
-siloA = Silo('siloA', 6.5, dias, factor, pesoCamion, alturaSiloCamion)
-siloB = Silo('siloB', 5.2, dias, factor, pesoCamion, alturaSiloCamion)
-siloC = Silo('siloC', 9.2, dias, factor, pesoCamion, alturaSiloCamion)
-siloD = Silo('siloD', 9.3, dias, factor, pesoCamion, alturaSiloCamion)
+siloA = Silo('siloA', 4.9, dias, factor, pesoCamion, alturaSiloCamion)
+siloB = Silo('siloB', 5.6, dias, factor, pesoCamion, alturaSiloCamion)
+siloC = Silo('siloC', 5.2, dias, factor, pesoCamion, alturaSiloCamion)
+siloD = Silo('siloD', 7.6, dias, factor, pesoCamion, alturaSiloCamion)
 
 taller_silos = Silo.taller_silos
 taller_silos.setCamionesDisponibles(horas, numCamiones, dias)
 
 taller_silos.setCamionesHora(0, 10, 2)
 taller_silos.setCamionesHora(0, 1, 3)
-taller_silos.setCamionesHora(0, 5, 3)
+taller_silos.setCamionesHora(6, 5, 3)
+taller_silos.setCamionesHora(0, 10, 5)
+taller_silos.setCamionesHora(0, 1, 6)
+taller_silos.setCamionesHora(0, 5, 6)
 
-centA = Centrifuga('A', 'eld1', 'siloA', 45, 5, dias)
+centA = Centrifuga('A', 'eld1', 'siloA', 30, 5, dias)
 centB = Centrifuga('B', 'eld1', 'siloD', 45, 4, dias)
 centC = Centrifuga('C', 'eld1', 'siloA', 30, 3, dias)
 centD = Centrifuga('D', 'eld1', 'siloC', 30, 6, dias)
@@ -43,7 +46,6 @@ taller_deshidratacion = Centrifuga.taller_deshidratacion
 
 for hora in range(24* dias):
 
-    print(taller_deshidratacion.getCaudalporCentrifuga()[hora: hora + 10])
     modList = list(taller_silos.getNivelSilos()[hora])
 
     # Asignación de camiones
@@ -89,3 +91,20 @@ for hora in range(24* dias):
             id = silo.id
             silo.calcularNivel(taller_deshidratacion.caudalSilo(id, hora), hora + 1)
     
+# print("Jueves: ".join(map(str, list(sum(taller_silos.getCamionesProyectados()[0:6]))))
+# print("Viernes: ".join(map(str, list(sum(taller_silos.getCamionesProyectados()[7:30]))))
+# print("Sabado: ".join(map(str, list(sum(taller_silos.getCamionesProyectados()[31:54]))))
+# print("Domingo: ".join(map(str, list(sum(taller_silos.getCamionesProyectados()[55:78]))))
+# print("Lunes: ".join(map(str, list(sum(taller_silos.getCamionesProyectados()[79:102]))))
+
+
+# print("Jueves: ")
+# print(list(sum(taller_silos.getCamionesProyectados()[0:6])) + "\n"))
+# print("Viernes: ")
+# print(list(sum(taller_silos.getCamionesProyectados()[7:30]))
+# print("Sabado: ")
+# print(list(sum(taller_silos.getCamionesProyectados()[31:54]))
+# print("Domingo: ")
+# print(list(sum(taller_silos.getCamionesProyectados()[55:78])
+# print("Lunes: ")
+# print(list(sum(taller_silos.getCamionesProyectados()[79:102])

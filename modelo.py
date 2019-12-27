@@ -101,8 +101,40 @@ class Centrifuga:
     def toString(self):
         return print("Centrìfuga " + str(self.id) + " alimentada por el estanque " + 
         str(self.estanque) + " y alineada al silo " + str(self.silo))
-            
+
+class AreaELD(list):
+
+    def __init__(self):
+        pass
+    
+    def getEstanque(self, idEstanque):
+        for estanque in self:
+            if estanque.getID() == idEstanque:
+                return estanque
+            else:
+                return None
+    
+    def setTraspaso(self, estanqueOrigen, estanqueDestino, caudal):
+        '''
+        No me convence la forma en que se implementa esto. Por un lado no toma en cuenta que 
+        '''
+
+
+        estanqueOrigen = self.getEstanque(estanqueOrigen)
+        estanqueDestino = self.getEstanque(estanqueDestino)
+        if estanqueOrigen and estanqueDestino:
+            print("esta wea sirve")
+            estanqueOrigen._traspasoSalida += np.full((estanqueOrigen.dias * 24, 1), caudal)
+            estanqueDestino._traspasoEntrada += np.full((estanqueDestino.dias * 24, 1), caudal)
+        else:
+            print("Estanque no registrado")
+            return None
+
+    
+
 class EstanqueLodoDigerido:
+
+    estanques = AreaELD()
 
     def __init__(self, id, volumen, caudalDig, nivelActual = 0, dias = 1):
         self.id = id
@@ -111,10 +143,17 @@ class EstanqueLodoDigerido:
         self.nivelHorario = np.zeros((24 * dias, 1))
         self.nivelHorario[0] = nivelActual
         self.caudalHorario = np.full((24 * dias, 1), caudalDig/24)
-        self.traspaso = np.zeros((24 * dias, 1))
-        
+        self._traspasoSalida = np.zeros((24 * dias, 1))
+        self._traspasoEntrada = np.zeros((24 * dias, 1))
+        self.estanques.append(self)
+
+    def getID(self):
+        return self.id
+
     def calcularNivel(self, caudalCentrifugas, hora):
-        self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + self.caudalHorario[hora - 1] - caudalCentrifugas - self.traspaso[hora - 1])* 100 / (self.volumen)
+        self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + \
+             self.caudalHorario[hora - 1] + self._traspasoEntrada[hora - 1] - \
+                 caudalCentrifugas - self._traspasoSalida[hora - 1])* 100 / (self.volumen)
 
         return self.nivelHorario[hora]
 
@@ -132,7 +171,7 @@ class EstanqueLodoDigerido:
 
     def setTraspaso(self, estanque, caudal):
         caudal = (estanque, caudal)
-        self.traspaso = [caudal for i in range(self.dia*24)]
+        self.traspaso = [caudal for i in range(self.dias*24)]
 
 class TallerSilos(list):
     
