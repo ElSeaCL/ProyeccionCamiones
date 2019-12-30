@@ -1,4 +1,21 @@
+'''
+TODO:
+    - Crear objetos de manera dinamica tras solicitar informacion al usuario.
+    http://jelly.codes/articles/python-dynamically-creating-classes/
+    - Permitir la visualizacion de datos cargados anteriormente, almacenados
+    en csv para creaar rapidamente los objetos usados en el modelo.
+    -    
+'''
+
 import sys
+from modelo import (
+    Centrifuga, 
+    Silo, 
+    EstanqueLodoDigerido, 
+    TallerSilos, 
+    TallerDeshidratacion, 
+    AreaELD
+)
 
 class Menu:
 
@@ -45,9 +62,25 @@ class Menu:
         pass
 
     def diasProyeccion(self):
+        self.dias = input("ingresa los dìas de proyecciòn")
         pass
 
     def nivelEstanquesSilos(self):
+        numEstanques = input("Ingresa estanques en operaciòn")
+
+        for i in range(numEstanques):
+            id = input("Ingresa id del estanque")
+            vol = input("Ingresa volumen del estanque")
+            minlvl = input("Ingresa nivel minimo de operaciòn")
+            new_eld = EstanqueLodoDigerido(id, vol, 4000, minlvl)
+            globals()[id] = new_eld
+
+
+
+        for i in list(VOLELD.keys()):
+            bol = input("El " + i + " se encuentra disponible? (S/N)")
+            if bol == "S":
+                input("Ingresa el nivel del estanque: ")
         pass
 
     def parametrosSilos(self):

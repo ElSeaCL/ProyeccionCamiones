@@ -2,7 +2,9 @@ import numpy as np
 '''
 TODO: 
 - Especificar el mecanismo de traspaso de lodo
-- Replantear el método detenerCentPrioridad() que actualmente no funciona
+- Replantear el método detenerCentPrioridad() que actualmente no funciona.
+- Quitar las variables que no pertenezcan propiamente tal a las clases. Estas 
+    variables se pueden inicializar por medio de un metodo.
 '''
 
 class TallerDeshidratacion(list):
@@ -123,8 +125,8 @@ class AreaELD(list):
         estanqueDestino = self.getEstanque(estanqueDestino)
         if estanqueOrigen and estanqueDestino:
             print("esta wea sirve")
-            estanqueOrigen._traspasoSalida += np.full((estanqueOrigen.dias * 24, 1), caudal)
-            estanqueDestino._traspasoEntrada += np.full((estanqueDestino.dias * 24, 1), caudal)
+            estanqueOrigen.traspasoSalida += np.full((estanqueOrigen.dias * 24, 1), caudal)
+            estanqueDestino.traspasoEntrada += np.full((estanqueDestino.dias * 24, 1), caudal)
         else:
             print("Estanque no registrado")
             return None
@@ -140,8 +142,8 @@ class EstanqueLodoDigerido:
         self.nivelHorario = np.zeros((24 * dias, 1))
         self.nivelHorario[0] = nivelActual
         self.caudalHorario = np.full((24 * dias, 1), caudalDig/24)
-        self.__traspasoSalida = np.zeros((24 * dias, 1))
-        self.__traspasoEntrada = np.zeros((24 * dias, 1))
+        self.traspasoSalida = np.zeros((24 * dias, 1))
+        self.traspasoEntrada = np.zeros((24 * dias, 1))
         self.estanques.append(self)
 
     def getID(self):
@@ -149,8 +151,8 @@ class EstanqueLodoDigerido:
 
     def calcularNivel(self, caudalCentrifugas, hora):
         self.nivelHorario[hora] = (self.nivelHorario[hora - 1] /100 * self.volumen + \
-             self.caudalHorario[hora - 1] + self.__traspasoEntrada[hora - 1] - \
-                 caudalCentrifugas - self.__traspasoSalida[hora - 1])* 100 / (self.volumen)
+             self.caudalHorario[hora - 1] + self.traspasoEntrada[hora - 1] - \
+                 caudalCentrifugas - self.traspasoSalida[hora - 1])* 100 / (self.volumen)
 
         return self.nivelHorario[hora]
 
